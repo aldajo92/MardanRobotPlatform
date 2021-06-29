@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-android-extensions'
 }
 
 android {
@@ -30,27 +31,53 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+ext {
+    kotlin_coroutines = "1.4.2"
+    androidx_ktx = "1.5.0"
+    androidx_appcompat = "1.3.0"
+    androidx_constraintlayout = "2.0.4"
+    androidx_recyclerview = "1.2.1"
+
+    android_material = "1.3.0"
+
+    gson = "2.8.6"
+    socketio = "2.0.0"
+    mpandroidchart = "v3.0.2"
+
+    junit = "4.13.2"
+    androidx_junit = "1.1.2"
+    androidx_espresso = "3.3.0"
 }
 
 dependencies {
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.5.0'
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    testImplementation 'junit:junit:4.13.2'
+    implementation "androidx.core:core-ktx:$androidx_ktx"
+    implementation "androidx.appcompat:appcompat:$androidx_appcompat"
+    implementation "androidx.constraintlayout:constraintlayout:$androidx_constraintlayout"
+    implementation "androidx.recyclerview:recyclerview:$androidx_recyclerview"
 
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation "com.google.android.material:material:$android_material"
 
     // gson
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation "com.google.code.gson:gson:$gson"
 
     // Socket.io
-    implementation('io.socket:socket.io-client:1.0.0') {
+    implementation("io.socket:socket.io-client:$socketio") {
         exclude group: 'org.json', module: 'json'
     }
 
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    // mpAndroidChart
+    implementation "com.github.PhilJay:MPAndroidChart:$mpandroidchart"
+
+    testImplementation "junit:junit:$junit"
+    androidTestImplementation "androidx.test.ext:junit:$androidx_junit"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidx_espresso"
 }

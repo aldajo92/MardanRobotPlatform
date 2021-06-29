@@ -1,1 +1,4 @@
-# UNAL_TDG_AutonomousVehiclePlatform_AndroidApp
+# AutonomousVehiclePlatform AndroidApp (UNAL TDG) #
+
+## References ##
+- https://github.com/joyceHong0524/socket.io_android
