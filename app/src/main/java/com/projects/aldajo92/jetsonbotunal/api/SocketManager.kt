@@ -1,19 +1,22 @@
-package com.projects.aldajo92.jetsonbotunal
+package com.projects.aldajo92.jetsonbotunal.api
 
 import android.util.Log
 import com.google.gson.Gson
+import com.projects.aldajo92.jetsonbotunal.ROBOT_COMMAND
+import com.projects.aldajo92.jetsonbotunal.ROBOT_MESSAGE
+import com.projects.aldajo92.jetsonbotunal.models.RobotVelocityEncoder
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 
-class SocketManager(private val socketListener: SocketListener) {
+class SocketManager(private val socketListener: SocketListener, private val socketPath: String) {
 
     lateinit var mSocket: Socket
     private val objectGSon by lazy { Gson() }
 
     fun connect() {
         try {
-            mSocket = IO.socket(DATA_SOCKET_PATH)
+            mSocket = IO.socket(socketPath)
             Log.d("success", mSocket.id())
         } catch (e: Exception) {
             e.printStackTrace()
@@ -44,7 +47,7 @@ class SocketManager(private val socketListener: SocketListener) {
     }
 
     interface SocketListener {
-        fun onDataReceived(robotVelocityEncoder : RobotVelocityEncoder)
+        fun onDataReceived(robotVelocityEncoder: RobotVelocityEncoder)
     }
 
 }

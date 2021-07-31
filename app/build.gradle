@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.projects.aldajo92.jetsonbotunal"
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -33,6 +34,12 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
+    }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
     }
 }
 
@@ -48,8 +55,13 @@ ext {
     gson = "2.8.6"
     socketio = "2.0.0"
     mpandroidchart = "v3.0.2"
+    opencsv = "4.0"
 
+    ipcamview = "2.1.0"
+
+    androidx_core = "1.4.0"
     junit = "4.13.2"
+    robolectric = "4.4"
     androidx_junit = "1.1.2"
     androidx_espresso = "3.3.0"
 }
@@ -76,8 +88,17 @@ dependencies {
 
     // mpAndroidChart
     implementation "com.github.PhilJay:MPAndroidChart:$mpandroidchart"
+    implementation "com.opencsv:opencsv:$opencsv"
 
+//    implementation 'com.github.faizkhan12:mjpeg-view-android-kotlin:v1.0.0'
+//    implementation 'com.github.perthcpe23:android-mjpeg-view:v1.0.9'
+
+    implementation "com.github.niqdev:ipcam-view:$ipcamview"
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+
+    testImplementation "androidx.test:core:$androidx_core"
     testImplementation "junit:junit:$junit"
+    testImplementation "org.robolectric:robolectric:$robolectric"
     androidTestImplementation "androidx.test.ext:junit:$androidx_junit"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidx_espresso"
 }
