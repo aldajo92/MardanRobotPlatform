@@ -150,7 +150,7 @@ class MainActivity : AppCompatActivity() {
     var ly = 0f
     var rx = 0f
 
-    var maxValue = 0
+    var maxValue = 100
 
     override fun onGenericMotionEvent(event: MotionEvent): Boolean {
         return if (event.source and InputDevice.SOURCE_JOYSTICK == InputDevice.SOURCE_JOYSTICK && event.action == MotionEvent.ACTION_MOVE) {

@@ -9,4 +9,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="steering">steering: %.4f</string>
     <string name="throttle">throttle: %.4f</string>
+    <string name="graph_fragment">Realtime Graphs</string>
+
+    <string name="velocity_graph_measure">Encoder Velocity [m/s]</string>
+    <string name="input_pwm_data">Input motor driver</string>
+    <string name="data_captured">Data captured</string>
 </resources>

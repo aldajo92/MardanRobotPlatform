@@ -11,12 +11,14 @@ import com.github.mikephil.charting.data.LineDataSet
 
 class SingleRealTimeWrapper(
     private val chart: LineChart,
-    private val colorLines: Int
+    private val colorLines: Int,
+    private val description: String
 ) {
 
     fun configureChart() {
         chart.description.isEnabled = true
         chart.description.textColor = Color.WHITE
+        chart.description.text = description
 
         // touch gestures
         chart.setTouchEnabled(true)
@@ -98,8 +100,8 @@ class SingleRealTimeWrapper(
     }
 
     companion object {
-        fun getInstance(chart: LineChart, colorLines: Int) =
-            SingleRealTimeWrapper(chart, colorLines).apply {
+        fun getInstance(chart: LineChart, colorLines: Int, description: String) =
+            SingleRealTimeWrapper(chart, colorLines, description).apply {
                 configureChart()
             }
     }

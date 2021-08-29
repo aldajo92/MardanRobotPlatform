@@ -11,7 +11,7 @@ const val KEY_SAMPLE_TIME = "aldajo92.SAMPLE_TIME"
 const val VALUE_URL_LOCAL_IP = "http://192.168.0.123:80"
 const val VALUE_URL_REMOTE = "https://jetsonbotunal.ngrok.io"
 const val SOCKET_PATH = ""
-const val STREAMING_PATH = "/stream?topic=/camera_processing/camera/image_color/BGR/raw"
+const val STREAMING_PATH = "/stream?topic=/camera/BGR/raw"
 
 fun String.getSocketPath() = "$this$SOCKET_PATH"
 fun String.getVideoStreamingPath() = "$this$STREAMING_PATH"
