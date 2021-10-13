@@ -49,6 +49,11 @@ docker build -t ros_nodejs ${PWD}
 docker run -it -p 5170:5170 --name=ros_nodejs --volume ${PWD}/catkin_ws:/catkin_ws --volume ${PWD}/nodejs_ros_server:/nodejs_ros_server --rm ros_nodejs
 ```
 
+```
+source "/opt/ros/$ROS_DISTRO/setup.bash"
+cd /nodejs_ros_server/ && npm install && nodemon index.js
+```
+
 # Diagrams for illustration #
 ## Computers:
 ![](./.media/MardanDiagram.jpeg)
