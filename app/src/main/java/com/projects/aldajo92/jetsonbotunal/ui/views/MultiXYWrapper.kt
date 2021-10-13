@@ -15,8 +15,9 @@ class MultiXYWrapper(
 ) {
 
     fun configureChart() {
-        chart.description.isEnabled = true
-        chart.description.textColor = Color.WHITE
+        chart.description.isEnabled = false
+//        chart.description.textColor = Color.WHITE
+//        chart.description.text = ""
 
         // touch gestures
         chart.setTouchEnabled(true)

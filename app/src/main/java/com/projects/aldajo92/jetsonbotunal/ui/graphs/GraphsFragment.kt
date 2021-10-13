@@ -38,7 +38,7 @@ class GraphsFragment : Fragment() {
         lineChartInput = SingleRealTimeWrapper.getInstance(
             binding.lineChartFirst,
             ColorTemplate.getHoloBlue(),
-            requireContext().getString(R.string.velocity_graph_measure)
+            requireContext().getString(R.string.input_pwm_data)
         )
 
         lineChartOutput =
