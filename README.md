@@ -29,7 +29,7 @@ Open PowerShell and type the following commands inside:
 - To get the ROS_NodeJS project:
 ```
 cd ~
-git clone git@github.com:aldajo92/ROS_NodeJS.git
+git clone https://github.com/aldajo92/ROS_NodeJS.git
 cd ROS_NodeJS
 ```
 Open this project with Visual Studio Code
