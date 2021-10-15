@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="manual_operation" type="manual_operation.py" name="manual_operation_1"/>
+</launch>
