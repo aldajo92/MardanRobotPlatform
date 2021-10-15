@@ -13,8 +13,8 @@ class MotorController:
 
     
     def callback(self, twist):
-        l_val = int((twist.linear.x + twist.angular.z)*self.vel_max/2)
-        r_val = int((twist.linear.x - twist.angular.z)*self.vel_max/2)
+        l_val = int((twist.linear.x - twist.angular.z)*self.vel_max/2)
+        r_val = int((twist.linear.x + twist.angular.z)*self.vel_max/2)
         motors.send_speed(l_val, r_val)
 
 
