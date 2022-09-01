@@ -9,4 +9,4 @@ echo "Building Docker image..."
 docker build -t ${PROJECT_NAME} ${PROJECT_ROOT}
 
 echo "Upload and clean..."
-${PROJECT_ROOT}/script/run sh -c 'cd arduino && make upload clean'
+${PROJECT_ROOT}/script/run sh -c 'cd arduino && make clean && make upload'
