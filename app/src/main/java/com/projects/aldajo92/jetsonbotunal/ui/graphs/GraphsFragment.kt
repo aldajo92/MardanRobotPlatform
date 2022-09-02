@@ -48,11 +48,11 @@ class GraphsFragment : Fragment() {
                 requireContext().getString(R.string.velocity_graph_measure)
             )
 
-        mainViewModel.velocityLiveData.observe(viewLifecycleOwner, { velocityEncoder ->
+        mainViewModel.velocityLiveData.observe(viewLifecycleOwner) { velocityEncoder ->
             velocityEncoder?.let {
                 lineChartOutput.addEntry(velocityEncoder.velocityEncoder)
                 lineChartInput.addEntry(velocityEncoder.input)
             }
-        })
+        }
     }
 }

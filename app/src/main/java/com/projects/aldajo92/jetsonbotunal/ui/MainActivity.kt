@@ -19,17 +19,13 @@ import com.github.niqdev.mjpeg.MjpegInputStream
 import com.projects.aldajo92.jetsonbotunal.R
 import com.projects.aldajo92.jetsonbotunal.api.SharedPreferencesManager
 import com.projects.aldajo92.jetsonbotunal.databinding.ActivityMainBinding
-import com.projects.aldajo92.jetsonbotunal.getVideoStreamingPath
 import com.projects.aldajo92.jetsonbotunal.models.MoveRobotMessage
 import com.projects.aldajo92.jetsonbotunal.ui.configuration.ConfigurationDialog
 import com.projects.aldajo92.jetsonbotunal.ui.views.MultiXYWrapper
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-import java.util.Timer
+import java.util.*
 import kotlin.concurrent.fixedRateTimer
 import kotlin.math.abs
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -148,18 +144,27 @@ class MainActivity : AppCompatActivity() {
     private var alreadyOnZero = true
 
     var ly = 0f
+    var lx = 0f
+    var ry = 0f
     var rx = 0f
 
     var maxValue = 100
 
     override fun onGenericMotionEvent(event: MotionEvent): Boolean {
         return if (event.source and InputDevice.SOURCE_JOYSTICK == InputDevice.SOURCE_JOYSTICK && event.action == MotionEvent.ACTION_MOVE) {
+            Log.d("Motion", event.toString())
             globalTimer?.cancel()
             val joyLy = event.getAxisValue(MotionEvent.AXIS_Y)
+            val joyLx = event.getAxisValue(MotionEvent.AXIS_X)
+
+            val joyRy = event.getAxisValue(MotionEvent.AXIS_RZ)
             val joyRx = event.getAxisValue(MotionEvent.AXIS_Z)
 
             // TODO: Move all related logic above to view model
             ly = if (abs(joyLy) >= minMovement) (-joyLy * maxValue) / 100 else 0f
+            lx = if (abs(joyLx) >= minMovement) -joyLx else 0f
+
+            ry = if (abs(joyRy) >= minMovement) joyRy else 0f
             rx = if (abs(joyRx) >= minMovement) -joyRx else 0f
 
             if (ly >= 0) {
@@ -170,32 +175,33 @@ class MainActivity : AppCompatActivity() {
                 binding.progressbarYNeg.progress = (-ly * maxValue).toInt()
             }
 
-            if (-rx >= 0) {
-                binding.progressbarXPos.progress = (-rx * 100).toInt()
+            if (-lx >= 0) {
+                binding.progressbarXPos.progress = (-lx * 100).toInt()
                 binding.progressbarXNeg.progress = 0
             } else {
                 binding.progressbarXPos.progress = 0
-                binding.progressbarXNeg.progress = (rx * 100).toInt()
+                binding.progressbarXNeg.progress = (lx * 100).toInt()
             }
 
-            val movementMessage = MoveRobotMessage(ly, rx)
-            if (abs(joyLy) >= minMovement || abs(joyRx) >= minMovement) {
+            val movementMessage = MoveRobotMessage(ly, lx, ry, rx)
+
+            if (abs(joyLy) >= minMovement || abs(joyLx) >= minMovement || abs(joyRy) >= minMovement || abs(joyRx) >= minMovement) {
                 mainViewModel.sendMessageBySocket(movementMessage)
                 alreadyOnZero = false
-            } else if (abs(joyLy) < minMovement && abs(joyRx) < minMovement && !alreadyOnZero) {
+            } else if (abs(joyLy) < minMovement && abs(joyLx) < minMovement && !alreadyOnZero) {
                 mainViewModel.sendMessageBySocket(movementMessage)
                 alreadyOnZero = true
             }
 
-            realTimeWrapper.addEntries(listOf(ly, rx))
+            realTimeWrapper.addEntries(listOf(ly, lx))
 
             true
         } else super.onGenericMotionEvent(event)
     }
 
     private fun startVideoStream() {
-        sharedPreferencesManager.getSelectedBaseUrl()?.let {
-            mainViewModel.getMJPEJObserver(it.getVideoStreamingPath())
+        "http://192.168.4.1:8080/stream?topic=/camera/BGR/raw".let {
+            mainViewModel.getMJPEJObserver(it)
                 .subscribe({ inputStream: MjpegInputStream? ->
                     binding.videoView.setSource(inputStream)
                     binding.videoView.setDisplayMode(DisplayMode.BEST_FIT)

@@ -7,5 +7,6 @@
     </base-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.168.0.245</domain>
+        <domain includeSubdomains="true">192.168.4.1</domain>
     </domain-config>
 </network-security-config>
