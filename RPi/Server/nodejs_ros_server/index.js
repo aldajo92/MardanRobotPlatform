@@ -75,8 +75,27 @@ if (process.env.ROS_DISTRO == "melodic") {
     }
   }
 
+  const panTiltMessage = {
+    x : 0.0,
+    y : 0.0,
+    z : 0.0
+  }
+
   const pub = nh.advertise('/joy_driver/joy', 'geometry_msgs/Twist')
+  const pubPanTilt = nh.advertise('/pan_tilt/values', 'geometry_msgs/Point')
   eventEmitter.on('joystickData', (data) => {
+    twistMessage.linear.x = data.steering
+    twistMessage.angular.z = data.throttle
+
+    panTiltMessage.x = (data.tilt)
+    panTiltMessage.y = (data.pan)
+    // console.log(twistMessage)
+    pub.publish(twistMessage)
+    pubPanTilt.publish(panTiltMessage)
+    // console.log(panTiltMessage)
+  })
+
+  eventEmitter.on('panTiltData', (data) => {
     twistMessage.linear.x = data.steering
     twistMessage.angular.z = data.throttle
     // console.log(twistMessage)

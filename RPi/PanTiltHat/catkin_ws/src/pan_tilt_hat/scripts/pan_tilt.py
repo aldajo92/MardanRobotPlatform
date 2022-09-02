@@ -20,12 +20,14 @@ class PanTiltNode:
         )
     
     def values_received(self, point):
-        pantilthat.pan(point.x)
-        pantilthat.tilt(point.y)
+        pantilthat.pan((point.x * 50) - 12)
+        pantilthat.tilt((point.y * 50) - 24)
 
 
 if __name__ == '__main__':
     rospy.init_node('pan_tilt')
+    pantilthat.pan(-12)
+    pantilthat.tilt(-24)
 
     navigation = PanTiltNode()
 
