@@ -2,7 +2,6 @@ FROM ubuntu:xenial
 
 RUN apt-get update && apt-get install -y \
     git \
-    arduino \
     arduino-mk
 
 RUN apt install wget zip -y
