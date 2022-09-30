@@ -21,12 +21,8 @@ class VideoRepositoryImpl @Inject constructor(
         disposable = mjpeg.open(urlPath, 100)
             .subscribe({ inputStream: MjpegInputStream? ->
                 streamingImageFlow.value = inputStream
-//                binding.videoView.setSource(inputStream)
-//                binding.videoView.setDisplayMode(DisplayMode.BEST_FIT)
-//                binding.videoView.showFps(true)
             }, {
                 streamingImageFlow.value = null
-//                binding.videoView.stopPlayback()
             })
     }
 
