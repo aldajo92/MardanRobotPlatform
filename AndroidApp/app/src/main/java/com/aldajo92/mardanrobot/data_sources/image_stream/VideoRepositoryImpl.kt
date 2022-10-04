@@ -10,7 +10,6 @@ import javax.inject.Inject
 class VideoRepositoryImpl @Inject constructor(
     private val mjpeg: Mjpeg
 ) : VideoRepository {
-
     private var disposable : Subscription? = null
 
     private val streamingImageFlow: MutableStateFlow<MjpegInputStream?> = MutableStateFlow(null)
@@ -31,5 +30,4 @@ class VideoRepositoryImpl @Inject constructor(
         disposable = null
         streamingImageFlow.value = null
     }
-
 }

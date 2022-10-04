@@ -1,4 +1,4 @@
-package com.aldajo92.mardanrobot
+package com.aldajo92.mardanrobot.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.aldajo92.mardanrobot.R
 import kotlin.math.*
 
 /**
@@ -106,10 +107,10 @@ fun JoyStick(
                         }
                     }
                 }
-                .onGloballyPositioned { coordinates ->
+                .onGloballyPositioned {
                     moved(
-                        (coordinates.positionInParent().x - centerX) / maxRadius,
-                        -(coordinates.positionInParent().y - centerY) / maxRadius
+                        (positionX) / maxRadius,
+                        -(positionY) / maxRadius
                     )
                 },
         ) {

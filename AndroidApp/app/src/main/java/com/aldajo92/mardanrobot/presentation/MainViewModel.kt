@@ -19,5 +19,4 @@ class MainViewModel @Inject constructor(
         videoRepository.startConnection("http://192.168.4.1:8080/stream?topic=/camera/BGR/raw")
     }
 
-
 }
