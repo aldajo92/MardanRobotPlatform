@@ -1,7 +1,9 @@
 package com.aldajo92.mardanrobot.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.aldajo92.mardanrobot.presentation.MainViewModel
 import com.aldajo92.mardanrobot.ui.components.JoyStick
 import com.aldajo92.mardanrobot.ui.components.VideoStreamView
+import com.aldajo92.mardanrobot.ui.theme.hideSystemUI
 import com.github.niqdev.mjpeg.MjpegInputStream
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -40,16 +43,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val inputStreamState by viewModel.inputStreamFlow.observeAsState()
             BodyContent(
                 inputStream = inputStreamState,
-                menuClicked = viewModel::startConnection
+                menuClicked = viewModel::startConnection,
+                settingsClicked = {
+                    startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+                }
             )
-//            Box {
-//                CustomJoystick()
-//            }
         }
+        hideSystemUI()
     }
 }
 
@@ -57,7 +62,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BodyContent(
     inputStream: MjpegInputStream? = null,
-    menuClicked: () -> Unit = {}
+    menuClicked: () -> Unit = {},
+    settingsClicked: () -> Unit = {}
 ) {
     BodyComposable(
         topContent = {
@@ -73,7 +79,8 @@ fun BodyContent(
             BottomContent(
                 modifier = Modifier
                     .fillMaxWidth(),
-                menuClicked = menuClicked
+                menuClicked = menuClicked,
+                settingsClicked = settingsClicked
             )
         }
     )
@@ -148,7 +155,8 @@ fun TopContent(
 @Composable
 fun BottomContent(
     modifier: Modifier = Modifier,
-    menuClicked: () -> Unit = {}
+    menuClicked: () -> Unit = {},
+    settingsClicked: () -> Unit = {},
 ) {
     Box(modifier = modifier) {
         CustomJoystick(
@@ -162,82 +170,33 @@ fun BottomContent(
                 .padding(30.dp)
                 .align(Alignment.BottomEnd)
         )
-//        JoyStick(
-//            modifier = Modifier
-//                .padding(30.dp)
-//                .align(Alignment.BottomStart),
-//            size = 100.dp,
-//            dotSize = 30.dp,
-//            backgroundComposable = {
-//                Spacer(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .clip(CircleShape)
-//                        .background(Color.White)
-//                )
-//            },
-//            dotComposable = {
-//                Spacer(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .clip(CircleShape)
-//                        .background(Color.Black)
-//                )
-//            }
-//        ) { x, y ->
-//            Log.d("JoyStick1", "$x, $y")
-//        }
-//        JoyStick(
-//            modifier = Modifier
-//                .padding(30.dp)
-//                .align(Alignment.BottomEnd),
-//            size = 100.dp,
-//            dotSize = 30.dp,
-//            backgroundComposable = {
-//                Spacer(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .clip(CircleShape)
-//                        .background(Color.White)
-//                )
-//            },
-//            dotComposable = {
-//                Spacer(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .clip(CircleShape)
-//                        .background(Color.Black)
-//                )
-//            }
-//        ) { x, y ->
-//            Log.d("JoyStick2", "$x, $y")
-//        }
         MenuSection(
             modifier = Modifier.align(Alignment.Center),
+            settingsClicked = settingsClicked
         )
     }
 }
 
 @Preview
 @Composable
-fun MenuSection(modifier: Modifier = Modifier) {
+fun MenuSection(
+    modifier: Modifier = Modifier,
+    menuClicked: () -> Unit = {},
+    settingsClicked: () -> Unit = {},
+) {
     Row(modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        MenuButton(modifier = Modifier.fillMaxHeight())
-        SettingsButton()
+        MenuButton(modifier = Modifier.fillMaxHeight(), componentClicked = menuClicked)
+        SettingsButton(componentClicked = settingsClicked)
         SimpleCircularButton(Modifier.fillMaxHeight())
     }
 }
 
 @Preview
 @Composable
-fun MenuButton(modifier: Modifier = Modifier) {
+fun MenuButton(modifier: Modifier = Modifier, componentClicked: () -> Unit = {}) {
     Card(
         modifier = modifier
-            .background(Color.Transparent)
-            .clip(RoundedCornerShape(25.dp))
-            .clickable {
-
-            },
+            .clickable { componentClicked() },
         shape = RoundedCornerShape(25.dp),
         border = BorderStroke(4.dp, Color.White),
         backgroundColor = Color.Transparent,
@@ -257,15 +216,15 @@ fun MenuButton(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun SettingsButton(modifier: Modifier = Modifier) {
-    Box(
+fun SettingsButton(modifier: Modifier = Modifier, componentClicked: () -> Unit = {}) {
+    Card(
         modifier = modifier
             .height(IntrinsicSize.Min)
             .width(IntrinsicSize.Min)
-            .border(4.dp, Color.White, shape = CircleShape)
-            .clickable {
-
-            }
+            .clickable { componentClicked() },
+        shape = CircleShape,
+        border = BorderStroke(4.dp, Color.White),
+        backgroundColor = Color.Transparent,
     ) {
         Icon(
             modifier = Modifier
@@ -279,10 +238,10 @@ fun SettingsButton(modifier: Modifier = Modifier) {
 
 @Preview(widthDp = 50, heightDp = 50)
 @Composable
-fun SimpleCircularButton(modifier: Modifier = Modifier) {
+fun SimpleCircularButton(modifier: Modifier = Modifier, componentClicked: () -> Unit = {}) {
     Box(
         modifier = modifier
-            .clickable { }
+            .clickable { componentClicked() }
             .aspectRatio(1f)
             .border(4.dp, Color.White, shape = CircleShape)
     )
