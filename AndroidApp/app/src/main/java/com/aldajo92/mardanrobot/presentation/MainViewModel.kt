@@ -2,17 +2,16 @@ package com.aldajo92.mardanrobot.presentation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.aldajo92.mardanrobot.data_sources.image_stream.VideoRepository
 import com.aldajo92.mardanrobot.ui.JoystickValues
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlin.time.Duration
@@ -26,9 +25,10 @@ class MainViewModel @Inject constructor(
     private var joystickValuesArray: Array<JoystickValues> =
         arrayOf(JoystickValues(), JoystickValues())
 
-    private val clockJob = CoroutineScope(Dispatchers.IO).launch {
+    private var clockJob: Job? = null
 
-    }
+    private var _joystickValuesLiveData = MutableLiveData<Array<JoystickValues>>()
+    val joystickValuesLiveData: LiveData<Array<JoystickValues>> = _joystickValuesLiveData
 
     val inputStreamFlow = videoRepository.getStreamingImageFlow().asLiveData()
 
@@ -36,21 +36,29 @@ class MainViewModel @Inject constructor(
         videoRepository.startConnection("http://192.168.4.1:8080/stream?topic=/camera/BGR/raw")
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun setCurrentJoystickState(arrayOfJoystickValues: Array<JoystickValues>) {
         this.joystickValuesArray = arrayOfJoystickValues
-        tickerFlow(5.seconds)
-            .map { LocalDateTime.now() }
-            .distinctUntilChanged { old, new ->
-                old.minute == new.minute
-            }
-            .onEach {
-
-            }
-            .launchIn(viewModelScope)
     }
 
-    fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun startClock() {
+        if (clockJob == null) {
+            clockJob = tickerFlow(0.2.seconds)
+                .map { LocalDateTime.now() }
+//            .distinctUntilChanged { old, new ->
+//                old.minute == new.minute
+//            }
+                .onEach {
+                    _joystickValuesLiveData.value = joystickValuesArray
+                }
+                .launchIn(viewModelScope)
+        } else {
+            clockJob?.cancel()
+            clockJob = null
+        }
+    }
+
+    private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
         delay(initialDelay)
         while (true) {
             emit(Unit)

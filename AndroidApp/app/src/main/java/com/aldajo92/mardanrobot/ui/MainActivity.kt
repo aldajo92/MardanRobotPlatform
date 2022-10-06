@@ -1,13 +1,14 @@
 package com.aldajo92.mardanrobot.ui
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -47,26 +48,34 @@ class MainActivity : ComponentActivity() {
         )
     )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.joystickValuesLiveData.observe(this) {
+            it?.let {
+                xyWrapper.addEntry(it[0].valueY, 0)
+                xyWrapper.addEntry(it[1].valueY, 1)
+            }
+        }
+
         setContent {
             val inputStreamState by viewModel.inputStreamFlow.observeAsState()
+
             BodyContent(
                 inputStream = inputStreamState,
                 xyWrapper = xyWrapper,
                 menuClicked = viewModel::startConnection,
-                settingsClicked = {
-                    startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-                },
-                joystickEvent = {
-                    viewModel.setCurrentJoystickState(it)
-                    xyWrapper.addEntry(it[0].valueY, 0)
-                    xyWrapper.addEntry(it[1].valueY, 1)
-                }
+                settingsClicked = { openSettings() },
+                joystickEvent = { viewModel.setCurrentJoystickState(it) },
+                simpleButtonClicked = { viewModel.startClock() }
             )
         }
         hideSystemUI()
+    }
+
+    private fun openSettings() {
+        startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
     }
 }
 
@@ -77,6 +86,7 @@ fun BodyContent(
     xyWrapper: MultiXYWrapper? = null,
     menuClicked: () -> Unit = {},
     settingsClicked: () -> Unit = {},
+    simpleButtonClicked: () -> Unit = {},
     joystickEvent: (Array<JoystickValues>) -> Unit = {}
 ) {
     BodyComposable(
@@ -96,6 +106,7 @@ fun BodyContent(
                     .fillMaxWidth(),
                 menuClicked = menuClicked,
                 settingsClicked = settingsClicked,
+                simpleButtonClicked = simpleButtonClicked,
                 joystickEvent = joystickEvent
             )
         }
@@ -140,24 +151,19 @@ fun TopContent(
                 .fillMaxHeight()
                 .width(300.dp),
             shape = RoundedCornerShape(10.dp)
-        ) {
-            if (inputStream != null) VideoStreamView(
-                inputStream = inputStream
-            )
-        }
-        LazyColumn(
+        ) { if (inputStream != null) VideoStreamView(inputStream = inputStream) }
+        Column(
             Modifier
+                .fillMaxHeight()
                 .fillMaxWidth()
                 .padding(start = 10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            item {
-                ChartCard(
-                    modifier = Modifier
-                        .height(180.dp),
-                    xyWrapper
-                )
-            }
+            ChartCard(
+                modifier = Modifier
+                    .weight(1f),
+                xyWrapper
+            )
         }
     }
 }
@@ -168,6 +174,7 @@ fun BottomContent(
     modifier: Modifier = Modifier,
     menuClicked: () -> Unit = {},
     settingsClicked: () -> Unit = {},
+    simpleButtonClicked: () -> Unit = {},
     joystickEvent: (Array<JoystickValues>) -> Unit = {}
 ) {
     val joystickArray = remember { arrayOf(JoystickValues(), JoystickValues()) }
@@ -191,7 +198,8 @@ fun BottomContent(
         }
         MenuSection(
             modifier = Modifier.align(Alignment.Center),
-            settingsClicked = settingsClicked
+            settingsClicked = settingsClicked,
+            simpleButtonClicked = simpleButtonClicked
         )
     }
 }
@@ -202,11 +210,12 @@ fun MenuSection(
     modifier: Modifier = Modifier,
     menuClicked: () -> Unit = {},
     settingsClicked: () -> Unit = {},
+    simpleButtonClicked: () -> Unit = {}
 ) {
     Row(modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         MenuButton(modifier = Modifier.fillMaxHeight(), componentClicked = menuClicked)
         SettingsButton(componentClicked = settingsClicked)
-        SimpleCircularButton(Modifier.fillMaxHeight())
+        SimpleCircularButton(Modifier.fillMaxHeight(), componentClicked = simpleButtonClicked)
     }
 }
 

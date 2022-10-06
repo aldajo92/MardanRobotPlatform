@@ -20,12 +20,6 @@ class MultiXYWrapper(
         configureChart()
     }
 
-    fun getSizes() = (0 until (chart?.data as LineData).dataSetCount).map {
-        chart?.apply {
-            data.getDataSetByIndex(it).entryCount
-        }
-    }
-
     fun configureChart() {
         chart?.apply {
             description.isEnabled = false
@@ -54,17 +48,20 @@ class MultiXYWrapper(
             xl.enableGridDashedLine(10f, 10f, 0f)
             xl.position = XAxis.XAxisPosition.BOTH_SIDED
             xl.setDrawLabels(false)
+//            xl.setDrawAxisLine(false) // Used to remove top and bottom limits
             xl.granularity = 1f
 
             val leftAxis: YAxis = axisLeft
             leftAxis.textColor = Color.WHITE
             leftAxis.granularity = 0.1f
             leftAxis.setDrawLabels(false)
+            leftAxis.setDrawAxisLine(false) // Used to remove top and bottom limits
             leftAxis.setDrawGridLines(true)
 
             val rightAxis: YAxis = axisRight
             rightAxis.isEnabled = true
-            leftAxis.setDrawGridLines(false)
+            rightAxis.setDrawGridLines(false)
+            rightAxis.setDrawAxisLine(false) // Used to remove top and bottom limits
             rightAxis.setDrawLabels(false)
         }
 
