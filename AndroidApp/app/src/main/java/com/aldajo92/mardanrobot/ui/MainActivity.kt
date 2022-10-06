@@ -2,8 +2,6 @@ package com.aldajo92.mardanrobot.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -30,16 +28,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.aldajo92.mardanrobot.presentation.MainViewModel
-import com.aldajo92.mardanrobot.ui.components.JoyStick
-import com.aldajo92.mardanrobot.ui.components.VideoStreamView
+import com.aldajo92.mardanrobot.ui.components.*
 import com.aldajo92.mardanrobot.ui.theme.hideSystemUI
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.niqdev.mjpeg.MjpegInputStream
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.sin
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
+
+    private val xyWrapper = MultiXYWrapper(
+        listOf(
+            ColorTemplate.getHoloBlue(),
+            android.graphics.Color.rgb(244, 10, 10)
+        )
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,9 +54,15 @@ class MainActivity : ComponentActivity() {
             val inputStreamState by viewModel.inputStreamFlow.observeAsState()
             BodyContent(
                 inputStream = inputStreamState,
+                xyWrapper = xyWrapper,
                 menuClicked = viewModel::startConnection,
                 settingsClicked = {
                     startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+                },
+                joystickEvent = {
+                    viewModel.setCurrentJoystickState(it)
+                    xyWrapper.addEntry(it[0].valueY, 0)
+                    xyWrapper.addEntry(it[1].valueY, 1)
                 }
             )
         }
@@ -62,8 +74,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BodyContent(
     inputStream: MjpegInputStream? = null,
+    xyWrapper: MultiXYWrapper? = null,
     menuClicked: () -> Unit = {},
-    settingsClicked: () -> Unit = {}
+    settingsClicked: () -> Unit = {},
+    joystickEvent: (Array<JoystickValues>) -> Unit = {}
 ) {
     BodyComposable(
         topContent = {
@@ -72,7 +86,8 @@ fun BodyContent(
                     .fillMaxSize()
                     .padding(horizontal = 10.dp)
                     .padding(top = 10.dp),
-                inputStream = inputStream
+                inputStream = inputStream,
+                xyWrapper = xyWrapper
             )
         },
         bottomContent = {
@@ -80,7 +95,8 @@ fun BodyContent(
                 modifier = Modifier
                     .fillMaxWidth(),
                 menuClicked = menuClicked,
-                settingsClicked = settingsClicked
+                settingsClicked = settingsClicked,
+                joystickEvent = joystickEvent
             )
         }
     )
@@ -114,6 +130,7 @@ fun BodyComposable(
 fun TopContent(
     modifier: Modifier = Modifier,
     inputStream: MjpegInputStream? = null,
+    xyWrapper: MultiXYWrapper? = null
 ) {
     Row(
         modifier = modifier
@@ -134,18 +151,12 @@ fun TopContent(
                 .padding(start = 10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            (0..2).map {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(80.dp)
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        backgroundColor = Color.Gray
-                    ) {
-                    }
-                }
+            item {
+                ChartCard(
+                    modifier = Modifier
+                        .height(180.dp),
+                    xyWrapper
+                )
             }
         }
     }
@@ -157,19 +168,27 @@ fun BottomContent(
     modifier: Modifier = Modifier,
     menuClicked: () -> Unit = {},
     settingsClicked: () -> Unit = {},
+    joystickEvent: (Array<JoystickValues>) -> Unit = {}
 ) {
+    val joystickArray = remember { arrayOf(JoystickValues(), JoystickValues()) }
+
     Box(modifier = modifier) {
         CustomJoystick(
             modifier = Modifier
                 .padding(30.dp)
                 .align(Alignment.BottomStart)
-        )
-
+        ) {
+            joystickArray[0] = it
+            joystickEvent(joystickArray)
+        }
         CustomJoystick(
             modifier = Modifier
                 .padding(30.dp)
                 .align(Alignment.BottomEnd)
-        )
+        ) {
+            joystickArray[1] = it
+            joystickEvent(joystickArray)
+        }
         MenuSection(
             modifier = Modifier.align(Alignment.Center),
             settingsClicked = settingsClicked
@@ -249,7 +268,11 @@ fun SimpleCircularButton(modifier: Modifier = Modifier, componentClicked: () -> 
 
 @Preview(widthDp = 100, heightDp = 100)
 @Composable
-fun CustomJoystick(modifier: Modifier = Modifier, size: Dp = 100.dp) {
+fun CustomJoystick(
+    modifier: Modifier = Modifier,
+    size: Dp = 100.dp,
+    joystickEvent: (JoystickValues) -> Unit = {}
+) {
     var positionX by remember { mutableStateOf(0f) }
     var positionY by remember { mutableStateOf(0f) }
     Box(modifier = modifier) {
@@ -299,7 +322,26 @@ fun CustomJoystick(modifier: Modifier = Modifier, size: Dp = 100.dp) {
         ) { x: Float, y: Float ->
             positionX = (x * (size.value + 35.dp.value)) // + (x * size.value / (2 * 4))
             positionY = -(y * (size.value + 35.dp.value)) // - (y * size.value / (2 * 4)))
-            Log.d("JoyStick1", "$x, $y")
+            joystickEvent(JoystickValues(x, y))
         }
     }
 }
+
+@Preview
+@Composable
+fun RenderChartCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        backgroundColor = Color.Gray
+    ) {
+        QuadLineChart(
+            Modifier
+                .height(100.dp)
+                .fillMaxWidth(),
+            (1..50).map { Pair(it, 1 + sin(2 * Math.PI * it / 10)) }
+        )
+    }
+}
+
