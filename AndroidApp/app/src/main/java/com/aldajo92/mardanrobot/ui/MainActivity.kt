@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.aldajo92.mardanrobot._settings.SettingsActivity
 import com.aldajo92.mardanrobot.presentation.MainViewModel
 import com.aldajo92.mardanrobot.ui.components.*
 import com.aldajo92.mardanrobot.ui.theme.hideSystemUI
