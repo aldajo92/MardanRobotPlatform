@@ -1,5 +1,6 @@
 package com.aldajo92.mardanrobot.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -8,7 +9,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -35,6 +39,7 @@ import com.aldajo92.mardanrobot.ui.theme.hideSystemUI
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.niqdev.mjpeg.MjpegInputStream
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import kotlin.math.sin
 
 @AndroidEntryPoint
@@ -62,10 +67,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val inputStreamState by viewModel.inputStreamFlow.observeAsState()
+            val robotMessagesText by viewModel.robotMessagesFlow.observeAsState()
 
             BodyContent(
                 inputStream = inputStreamState,
                 xyWrapper = xyWrapper,
+                messageText = robotMessagesText.orEmpty(),
                 menuClicked = viewModel::startConnection,
                 settingsClicked = { openSettings() },
                 joystickEvent = { viewModel.setCurrentJoystickState(it) },
@@ -85,6 +92,7 @@ class MainActivity : ComponentActivity() {
 fun BodyContent(
     inputStream: MjpegInputStream? = null,
     xyWrapper: MultiXYWrapper? = null,
+    messageText: String = "",
     menuClicked: () -> Unit = {},
     settingsClicked: () -> Unit = {},
     simpleButtonClicked: () -> Unit = {},
@@ -98,7 +106,8 @@ fun BodyContent(
                     .padding(horizontal = 10.dp)
                     .padding(top = 10.dp),
                 inputStream = inputStream,
-                xyWrapper = xyWrapper
+                xyWrapper = xyWrapper,
+                messageText = messageText
             )
         },
         bottomContent = {
@@ -137,13 +146,17 @@ fun BodyComposable(
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 200)
 @Composable
 fun TopContent(
     modifier: Modifier = Modifier,
     inputStream: MjpegInputStream? = null,
-    xyWrapper: MultiXYWrapper? = null
+    xyWrapper: MultiXYWrapper? = null,
+    messageText: String = ""
 ) {
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     Row(
         modifier = modifier
     ) {
@@ -152,7 +165,26 @@ fun TopContent(
                 .fillMaxHeight()
                 .width(300.dp),
             shape = RoundedCornerShape(10.dp)
-        ) { if (inputStream != null) VideoStreamView(inputStream = inputStream) }
+        ) {
+            if (inputStream != null) VideoStreamView(inputStream = inputStream)
+
+//            LaunchedEffect(messageText){
+//                listState.scrollToItem(1)
+//            }
+            coroutineScope.launch {
+                listState.animateScrollBy(100f)
+            }
+            LazyColumn(state = listState) {
+                item {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        text = messageText,
+                        color = LightGray
+                    )
+                }
+            }
+        }
         Column(
             Modifier
                 .fillMaxHeight()

@@ -1,4 +1,4 @@
-package com.aldajo92.mardanrobot.data_sources.image_stream
+package com.aldajo92.mardanrobot.repositories.video_stream
 
 import com.github.niqdev.mjpeg.MjpegInputStream
 import kotlinx.coroutines.flow.Flow
