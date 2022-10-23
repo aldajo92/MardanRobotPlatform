@@ -15,7 +15,10 @@ import com.github.mikephil.charting.charts.LineChart
 
 @Preview
 @Composable
-fun ChartCard(modifier: Modifier = Modifier, xyWrapper: MultiXYWrapper? = null) {
+fun ChartCard(
+    modifier: Modifier = Modifier,
+    xyWrapper: MultiXYWrapper = MultiXYWrapper(listOf(0))
+) {
     Card(
         modifier = modifier
             .fillMaxWidth(),
@@ -28,16 +31,17 @@ fun ChartCard(modifier: Modifier = Modifier, xyWrapper: MultiXYWrapper? = null) 
 }
 
 @Composable
-fun MultiGraphChart(modifier: Modifier = Modifier, xyWrapper: MultiXYWrapper? = null) {
+fun MultiGraphChart(
+    modifier: Modifier = Modifier,
+    xyWrapper: MultiXYWrapper
+) {
     AndroidView(
         modifier = modifier,
         factory = { context ->
             val lineChart = LineChart(context)
-            xyWrapper?.init(lineChart)
+            xyWrapper.init(lineChart)
             lineChart
         },
-        update = { view ->
-            xyWrapper?.init(view)
-        }
+        update = { view -> }
     )
 }

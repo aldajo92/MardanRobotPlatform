@@ -39,7 +39,6 @@ import com.aldajo92.mardanrobot.ui.theme.hideSystemUI
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.niqdev.mjpeg.MjpegInputStream
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import kotlin.math.sin
 
 @AndroidEntryPoint
@@ -91,7 +90,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BodyContent(
     inputStream: MjpegInputStream? = null,
-    xyWrapper: MultiXYWrapper? = null,
+    xyWrapper: MultiXYWrapper = MultiXYWrapper(listOf(0)),
     messageText: String = "",
     menuClicked: () -> Unit = {},
     settingsClicked: () -> Unit = {},
@@ -152,11 +151,10 @@ fun BodyComposable(
 fun TopContent(
     modifier: Modifier = Modifier,
     inputStream: MjpegInputStream? = null,
-    xyWrapper: MultiXYWrapper? = null,
+    xyWrapper: MultiXYWrapper = MultiXYWrapper(listOf(0)),
     messageText: String = ""
 ) {
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
     Row(
         modifier = modifier
     ) {
@@ -168,10 +166,7 @@ fun TopContent(
         ) {
             if (inputStream != null) VideoStreamView(inputStream = inputStream)
 
-//            LaunchedEffect(messageText){
-//                listState.scrollToItem(1)
-//            }
-            coroutineScope.launch {
+            LaunchedEffect(messageText){
                 listState.animateScrollBy(100f)
             }
             LazyColumn(state = listState) {
