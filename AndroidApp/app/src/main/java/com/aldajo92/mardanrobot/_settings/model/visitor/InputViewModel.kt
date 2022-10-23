@@ -1,14 +1,17 @@
 package com.aldajo92.mardanrobot._settings.model.visitor
 
 import androidx.compose.runtime.Composable
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import com.aldajo92.mardanrobot._settings.dataStore.DataStorePreference
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
 abstract class InputViewModel<T>(
     val title: String,
     val key: String,
-    val defaultValue: T
+    val defaultValue: T,
+    private val dataStorePreference: DataStorePreference?
 ) {
 
     @Composable
@@ -17,11 +20,17 @@ abstract class InputViewModel<T>(
     abstract fun getSettingValueFlow(): Flow<T>
 
     abstract fun updateSettingValue(it: T)
+
+    fun closeDataStoreConnection() {
+//        dataStorePreference?.
+    }
+
 }
 
 class TitleSettingsViewModel(
     title: String,
-) : InputViewModel<String>(title, "", "") {
+    dataStorePreference: DataStorePreference? = null
+) : InputViewModel<String>(title, "", "", dataStorePreference) {
 
     @Composable
     override fun VisitUI(inputSettingsVisitor: InputSettingsVisitor) {
@@ -39,8 +48,9 @@ class TitleSettingsViewModel(
 class InputTextSettingsViewModel(
     title: String,
     key: String,
-    defaultValue: String = ""
-) : InputViewModel<String>(title, key, defaultValue) {
+    defaultValue: String = "",
+    dataStorePreference: DataStorePreference? = null
+) : InputViewModel<String>(title, key, defaultValue, dataStorePreference) {
 
     @Composable
     override fun VisitUI(inputSettingsVisitor: InputSettingsVisitor) {
@@ -59,8 +69,9 @@ class ChoiceListSettingsViewModel(
     title: String,
     key: String,
     defaultValue: String = "",
-    val listSelection : List<String>
-) : InputViewModel<String>(title, key, defaultValue) {
+    val listSelection: List<String>,
+    dataStorePreference: DataStorePreference? = null
+) : InputViewModel<String>(title, key, defaultValue, dataStorePreference) {
 
     @Composable
     override fun VisitUI(inputSettingsVisitor: InputSettingsVisitor) {
@@ -78,22 +89,24 @@ class ChoiceListSettingsViewModel(
 class CheckSettingsViewModel(
     title: String,
     key: String,
-    defaultValue: Boolean = false
-) : InputViewModel<Boolean>(title, key, defaultValue) {
+    defaultValue: Boolean = false,
+    private val dataStorePreference: DataStorePreference? = null
+) : InputViewModel<Boolean>(title, key, defaultValue, dataStorePreference) {
 
-    private val _checkStatusFlow = MutableStateFlow(defaultValue)
+    private val _preferenceKey = booleanPreferencesKey(key)
+
+    private val _preferenceValue: Flow<Boolean>? =
+        dataStorePreference?.getPreference(_preferenceKey, defaultValue)
 
     @Composable
     override fun VisitUI(inputSettingsVisitor: InputSettingsVisitor) {
         inputSettingsVisitor.AcceptUI(this)
     }
 
-    override fun getSettingValueFlow(): Flow<Boolean> = _checkStatusFlow
+    override fun getSettingValueFlow(): Flow<Boolean> = _preferenceValue ?: flowOf(defaultValue)
 
     override fun updateSettingValue(it: Boolean) {
-        // TODO: Save to preferences here
-        _checkStatusFlow.value = it
+        dataStorePreference?.putPreference(_preferenceKey, it)
     }
-
 
 }

@@ -10,10 +10,40 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.aldajo92.mardanrobot._settings.dataStore.DataStorePreferenceImpl
 import com.aldajo92.mardanrobot._settings.model.visitor.*
 import com.aldajo92.mardanrobot.ui.components.AppBarWithArrow
 
 class SettingsActivity : ComponentActivity() {
+
+    private val dataStorePreferenceAPI by lazy { DataStorePreferenceImpl(this) }
+
+    private val listItems by lazy {
+        listOf(
+            CheckSettingsViewModel(
+                title = "Enable BT",
+                key = "defaultKey1",
+                dataStorePreference = dataStorePreferenceAPI
+            ),
+            CheckSettingsViewModel(
+                title = "Enable BT", key = "defaultKey2",
+                dataStorePreference = dataStorePreferenceAPI
+            ),
+            TitleSettingsViewModel(title = "Enable BT"),
+            CheckSettingsViewModel(
+                title = "Enable BT",
+                key = "defaultKey3",
+                defaultValue = true,
+                dataStorePreference = dataStorePreferenceAPI
+            ),
+            ChoiceListSettingsViewModel(
+                title = "Check list",
+                key = "key",
+                listSelection = listOf("item1", "item2")
+            ),
+            InputTextSettingsViewModel(title = "Check list", key = "key"),
+        )
+    }
 
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,19 +63,6 @@ class SettingsActivity : ComponentActivity() {
     @Composable
     fun BodyContent() {
 
-        val listItems = listOf(
-            CheckSettingsViewModel(title = "Enable BT", key = "defaultKey"),
-            CheckSettingsViewModel(title = "Enable BT", key = "defaultKey"),
-            TitleSettingsViewModel(title = "Enable BT"),
-            CheckSettingsViewModel(title = "Enable BT", key = "defaultKey", defaultValue = true),
-            ChoiceListSettingsViewModel(
-                title = "Check list",
-                key = "key",
-                listSelection = listOf("item1", "item2")
-            ),
-            InputTextSettingsViewModel(title = "Check list", key = "key"),
-        )
-
         val inputSettingsVisitorImpl = InputSettingsVisitorImpl()
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -53,6 +70,11 @@ class SettingsActivity : ComponentActivity() {
                 SettingsUIRender(item).AcceptUI(inputSettingsVisitorImpl)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dataStorePreferenceAPI.close() // TODO: Used as a temporal solution, create a singleton instead
     }
 
 }

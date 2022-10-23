@@ -41,8 +41,7 @@ class InputSettingsVisitorImpl : InputSettingsVisitor {
 
     @Composable
     override fun AcceptUI(checkSettingsViewModel: CheckSettingsViewModel) {
-        val checkState by checkSettingsViewModel.getSettingValueFlow()
-            .collectAsState(initial = false)
+        val checkState by checkSettingsViewModel.getSettingValueFlow().collectAsState(initial = false)
         ItemSettingsCheck(
             text = checkSettingsViewModel.title,
             checkState = checkState

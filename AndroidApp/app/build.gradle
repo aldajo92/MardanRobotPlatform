@@ -65,6 +65,8 @@ dependencies {
     implementation 'androidx.compose.runtime:runtime-livedata:1.2.1'
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.5.1"
 
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
     implementation "com.github.PhilJay:MPAndroidChart:$mpandroidchart"
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
