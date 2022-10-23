@@ -1,16 +1,36 @@
 package com.aldajo92.mardanrobot.repositories.robot_message
 
+import com.aldajo92.mardanrobot.framework.SocketListener
+import com.aldajo92.mardanrobot.framework.SocketManager
+import com.aldajo92.mardanrobot.models.RobotVelocityEncoder
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
-class RobotMessageRepositoryImpl : RobotMessageRepository {
+class RobotMessageRepositoryImpl : RobotMessageRepository, SocketListener {
 
-    override fun startConnection(urlPath: String): Boolean = false
+    private var socketManager: SocketManager? = null
 
-    override fun sendMessage(channel: String, messageObject: Any) = Unit
+    private val messagesFlow = MutableStateFlow<RobotVelocityEncoder?>(null)
 
-    override fun messageFlow(): Flow<String> = flow { emit("") }
+    override fun startConnection(urlPath: String): Boolean {
+        socketManager = SocketManager(urlPath, this)
+        socketManager?.connect()
+        return true
+    }
 
-    override fun endConnection(): Boolean = false
+    override fun sendMessage(channel: String, messageObject: Any) {
+        socketManager?.sendData(channel, messageObject)
+    }
+
+    override fun messageFlow(): Flow<RobotVelocityEncoder?> = messagesFlow
+
+    override fun endConnection(): Boolean = socketManager?.let {
+        it.disconnect()
+        true
+    } ?: false
+
+    override fun onDataReceived(robotVelocityEncoder: RobotVelocityEncoder) {
+        messagesFlow.value = robotVelocityEncoder
+    }
 
 }

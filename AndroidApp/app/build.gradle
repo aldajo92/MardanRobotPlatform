@@ -50,6 +50,8 @@ android {
 ext {
     ipcamview = "2.1.0"
     mpandroidchart = "v3.0.2"
+    socketio = "2.0.0"
+    gson = "2.8.6"
 }
 
 dependencies {
@@ -71,6 +73,13 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.38.1"
     implementation 'com.google.android.material:material:1.6.1'
     kapt "com.google.dagger:hilt-compiler:2.38.1"
+
+    // Socket.io
+    implementation("io.socket:socket.io-client:$socketio") {
+        exclude group: 'org.json', module: 'json'
+    }
+    // gson
+    implementation "com.google.code.gson:gson:$gson"
 
     implementation "com.github.niqdev:ipcam-view:$ipcamview"
 

@@ -1,5 +1,6 @@
 package com.aldajo92.mardanrobot.repositories.robot_message
 
+import com.aldajo92.mardanrobot.models.RobotVelocityEncoder
 import kotlinx.coroutines.flow.Flow
 
 interface RobotMessageRepository {
@@ -8,7 +9,7 @@ interface RobotMessageRepository {
 
     fun sendMessage(channel: String, messageObject: Any)
 
-    fun messageFlow(): Flow<String>
+    fun messageFlow(): Flow<RobotVelocityEncoder?>
 
     fun endConnection(): Boolean
 
