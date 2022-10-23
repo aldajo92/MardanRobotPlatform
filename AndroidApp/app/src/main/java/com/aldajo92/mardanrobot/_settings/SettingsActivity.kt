@@ -1,21 +1,32 @@
 package com.aldajo92.mardanrobot._settings
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aldajo92.mardanrobot._settings.model.visitor.*
+import com.aldajo92.mardanrobot.ui.components.AppBarWithArrow
 
 class SettingsActivity : ComponentActivity() {
 
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            BodyContent()
+            Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+                AppBarWithArrow(
+                    title = "Settings",
+                    onBackPressed = this::onBackPressed
+                )
+            }) {
+                BodyContent()
+            }
         }
     }
 
