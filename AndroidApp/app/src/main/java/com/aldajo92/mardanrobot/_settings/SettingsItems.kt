@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 fun ItemSettingsTemplate(
     modifier: Modifier = Modifier,
     text: String = "DefaultText",
+    value: String? = "DefaultValue",
     imageVector: ImageVector? = null,
     contentEnd: (@Composable RowScope.() -> Unit)? = {},
     itemClicked: () -> Unit = {}
@@ -29,7 +31,7 @@ fun ItemSettingsTemplate(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(15.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             imageVector?.let {
@@ -40,18 +42,17 @@ fun ItemSettingsTemplate(
                     contentDescription = "MENU"
                 )
             }
-            Text(
+            Column(
                 modifier = Modifier
-                    .align(Alignment.CenterVertically), text = text
-            )
+                    .align(Alignment.CenterVertically)
+            ) {
+                Text(text = text)
+                value?.let {
+                    Text(text = value, fontStyle = FontStyle.Italic, color = Color.LightGray)
+                }
+            }
             contentEnd?.let { contentEnd() }
         }
-        Divider(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(horizontal = 10.dp)
-                .fillMaxWidth()
-        )
     }
 }
 
@@ -90,6 +91,7 @@ fun ItemSettingsInputText(
     var name by remember { mutableStateOf("Alejandro") }
     ItemSettingsTemplate(
         text = text,
+        value = null,
         imageVector = Icons.Filled.Info,
         contentEnd = {
             TextField(
@@ -120,6 +122,7 @@ fun ItemSettingsCheck(
 ) {
     ItemSettingsTemplate(
         text = text,
+        value = checkState.toString(),
         imageVector = Icons.Filled.Settings,
         contentEnd = {
             Spacer(modifier = Modifier.weight(1f))
@@ -144,8 +147,11 @@ fun ItemSettingsChoiceList(
     onCheckChanged: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
+    val selectedValue =
+        remember { mutableStateOf("No value selected") } // TODO: Replace by viewModel
     ItemSettingsTemplate(
         text = text,
+        value = selectedValue.value,
         imageVector = Icons.Filled.Settings,
         contentEnd = {
             Spacer(modifier = Modifier.weight(1f))
@@ -156,7 +162,7 @@ fun ItemSettingsChoiceList(
                         androidx.appcompat.app.AlertDialog
                             .Builder(context)
                             .setItems(items) { dialog, which ->
-                                // Respond to item chosen
+                                selectedValue.value = items[which]
                             }
                             .show()
                     },
