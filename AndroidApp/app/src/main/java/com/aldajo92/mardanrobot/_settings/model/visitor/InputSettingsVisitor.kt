@@ -11,48 +11,52 @@ import com.aldajo92.mardanrobot._settings.ItemSettingsTitle
 interface InputSettingsVisitor {
 
     @Composable
-    fun AcceptUI(inputTextSettingsViewModel: InputTextSettingsViewModel)
+    fun AcceptUI(viewModel: InputTextSettingsViewModel)
 
     @Composable
-    fun AcceptUI(choiceListSettingsViewModel: ChoiceListSettingsViewModel)
+    fun AcceptUI(viewModel: ChoiceListSettingsViewModel)
 
     @Composable
-    fun AcceptUI(checkSettingsViewModel: CheckSettingsViewModel)
+    fun AcceptUI(viewModel: CheckSettingsViewModel)
 
     @Composable
-    fun AcceptUI(titleSettingsViewModel: TitleSettingsViewModel)
+    fun AcceptUI(viewModel: TitleSettingsViewModel)
 
 }
 
 class InputSettingsVisitorImpl : InputSettingsVisitor {
 
     @Composable
-    override fun AcceptUI(inputTextSettingsViewModel: InputTextSettingsViewModel) {
+    override fun AcceptUI(viewModel: InputTextSettingsViewModel) {
         ItemSettingsInputText()
     }
 
     @Composable
-    override fun AcceptUI(choiceListSettingsViewModel: ChoiceListSettingsViewModel) {
+    override fun AcceptUI(viewModel: ChoiceListSettingsViewModel) {
+        val selectedValue by viewModel.getSettingValueFlow().collectAsState(null)
         ItemSettingsChoiceList(
-            text = "Choice value",
-            values = choiceListSettingsViewModel.listSelection
-        )
-    }
-
-    @Composable
-    override fun AcceptUI(checkSettingsViewModel: CheckSettingsViewModel) {
-        val checkState by checkSettingsViewModel.getSettingValueFlow().collectAsState(initial = false)
-        ItemSettingsCheck(
-            text = checkSettingsViewModel.title,
-            checkState = checkState
-        ) {
-            checkSettingsViewModel.updateSettingValue(it)
+            text = viewModel.title,
+            values = viewModel.listSelection,
+            selectedValue = selectedValue
+        ){
+            viewModel.updateSettingValue(it)
         }
     }
 
     @Composable
-    override fun AcceptUI(titleSettingsViewModel: TitleSettingsViewModel) {
-        ItemSettingsTitle(text = titleSettingsViewModel.title)
+    override fun AcceptUI(viewModel: CheckSettingsViewModel) {
+        val checkState by viewModel.getSettingValueFlow().collectAsState(false)
+        ItemSettingsCheck(
+            text = viewModel.title,
+            checkState = checkState
+        ) {
+            viewModel.updateSettingValue(it)
+        }
+    }
+
+    @Composable
+    override fun AcceptUI(viewModel: TitleSettingsViewModel) {
+        ItemSettingsTitle(text = viewModel.title)
     }
 
 }

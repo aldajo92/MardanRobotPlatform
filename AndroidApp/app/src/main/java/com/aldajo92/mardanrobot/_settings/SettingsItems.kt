@@ -142,16 +142,13 @@ fun ItemSettingsChoiceList(
     modifier: Modifier = Modifier,
     text: String = "DefaultText",
     values: List<String> = listOf(),
-    checkState: Boolean = false,
-    itemClicked: () -> Unit = {},
-    onCheckChanged: (Boolean) -> Unit = {}
+    selectedValue: String? = null,
+    onValueSelected: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
-    val selectedValue =
-        remember { mutableStateOf("No value selected") } // TODO: Replace by viewModel
     ItemSettingsTemplate(
         text = text,
-        value = selectedValue.value,
+        value = selectedValue ?: "No value selected",
         imageVector = Icons.Filled.Settings,
         contentEnd = {
             Spacer(modifier = Modifier.weight(1f))
@@ -162,7 +159,7 @@ fun ItemSettingsChoiceList(
                         androidx.appcompat.app.AlertDialog
                             .Builder(context)
                             .setItems(items) { dialog, which ->
-                                selectedValue.value = items[which]
+                                onValueSelected(items[which])
                             }
                             .show()
                     },

@@ -2,6 +2,7 @@ package com.aldajo92.mardanrobot._settings.model.visitor
 
 import androidx.compose.runtime.Composable
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.aldajo92.mardanrobot._settings.dataStore.DataStorePreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -70,18 +71,21 @@ class ChoiceListSettingsViewModel(
     key: String,
     defaultValue: String = "",
     val listSelection: List<String>,
-    dataStorePreference: DataStorePreference? = null
+    private val dataStorePreference: DataStorePreference? = null
 ) : InputViewModel<String>(title, key, defaultValue, dataStorePreference) {
+
+    private val _preferenceKey = stringPreferencesKey(key)
+    private val _preferenceValue = dataStorePreference?.getPreference(_preferenceKey, defaultValue)
 
     @Composable
     override fun VisitUI(inputSettingsVisitor: InputSettingsVisitor) {
         inputSettingsVisitor.AcceptUI(this)
     }
 
-    override fun getSettingValueFlow(): Flow<String> = flow { emit("") }
+    override fun getSettingValueFlow(): Flow<String> = _preferenceValue ?: flowOf("")
 
     override fun updateSettingValue(it: String) {
-
+        dataStorePreference?.putPreference(_preferenceKey, it)
     }
 
 }
@@ -94,9 +98,7 @@ class CheckSettingsViewModel(
 ) : InputViewModel<Boolean>(title, key, defaultValue, dataStorePreference) {
 
     private val _preferenceKey = booleanPreferencesKey(key)
-
-    private val _preferenceValue: Flow<Boolean>? =
-        dataStorePreference?.getPreference(_preferenceKey, defaultValue)
+    private val _preferenceValue = dataStorePreference?.getPreference(_preferenceKey, defaultValue)
 
     @Composable
     override fun VisitUI(inputSettingsVisitor: InputSettingsVisitor) {

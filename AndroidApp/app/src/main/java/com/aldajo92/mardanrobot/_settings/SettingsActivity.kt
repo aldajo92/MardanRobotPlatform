@@ -39,7 +39,8 @@ class SettingsActivity : ComponentActivity() {
             ChoiceListSettingsViewModel(
                 title = "Check list",
                 key = "key",
-                listSelection = listOf("item1", "item2")
+                listSelection = listOf("item1", "item2"),
+                dataStorePreference = dataStorePreferenceAPI
             ),
             InputTextSettingsViewModel(title = "Check list", key = "key"),
         )
