@@ -11,7 +11,12 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.aldajo92.mardanrobot._settings.dataStore.DataStorePreferenceImpl
-import com.aldajo92.mardanrobot._settings.model.visitor.*
+import com.aldajo92.mardanrobot._settings.model.visitor.CheckSettingsViewModel
+import com.aldajo92.mardanrobot._settings.model.visitor.ChoiceListSettingsViewModel
+import com.aldajo92.mardanrobot._settings.model.visitor.InputSettingsVisitorImpl
+import com.aldajo92.mardanrobot._settings.model.visitor.InputTextSettingsViewModel
+import com.aldajo92.mardanrobot._settings.model.visitor.SettingsUIRender
+import com.aldajo92.mardanrobot._settings.model.visitor.TitleSettingsViewModel
 import com.aldajo92.mardanrobot.ui.components.AppBarWithArrow
 
 class SettingsActivity : ComponentActivity() {
@@ -37,9 +42,9 @@ class SettingsActivity : ComponentActivity() {
                 dataStorePreference = dataStorePreferenceAPI
             ),
             ChoiceListSettingsViewModel(
-                title = "Check list",
+                title = "Choice From List",
                 key = "key",
-                listSelection = listOf("item1", "item2"),
+                defaultList = listOf("item1", "item2"),
                 dataStorePreference = dataStorePreferenceAPI
             ),
             InputTextSettingsViewModel(title = "Check list", key = "key"),
@@ -68,7 +73,7 @@ class SettingsActivity : ComponentActivity() {
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(listItems) { item ->
-                SettingsUIRender(item).AcceptUI(inputSettingsVisitorImpl)
+                SettingsUIRender(this@SettingsActivity, item).AcceptUI(inputSettingsVisitorImpl)
             }
         }
     }

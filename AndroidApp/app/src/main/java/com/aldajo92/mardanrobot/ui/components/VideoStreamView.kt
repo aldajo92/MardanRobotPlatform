@@ -19,13 +19,15 @@ fun VideoStreamView(
         factory = { context ->
             MjpegSurfaceView(context, null).apply {
                 if (inputStream != null) setSource(inputStream)
-                setDisplayMode(DisplayMode.BEST_FIT)
                 showFps(true)
             }
         },
         update = { view ->
             with(view) {
-                if (inputStream != null) setSource(inputStream) else stopPlayback()
+                if (inputStream != null) {
+                    setSource(inputStream)
+                    setDisplayMode(DisplayMode.BEST_FIT)
+                } else stopPlayback()
             }
         }
     )
