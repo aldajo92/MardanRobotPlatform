@@ -40,7 +40,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +53,8 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aldajo92.mardanrobot._settings.SettingsActivity
 import com.aldajo92.mardanrobot.presentation.MainViewModel
 import com.aldajo92.mardanrobot.ui.components.ChartCard
@@ -79,6 +80,7 @@ class MainActivity : ComponentActivity() {
         )
     )
 
+    @OptIn(ExperimentalLifecycleComposeApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,13 +93,13 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            val inputStreamState by viewModel.inputStreamFlow.observeAsState()
-            val robotMessagesText by viewModel.robotMessagesFlow.observeAsState()
+            val inputStreamState by viewModel.inputStreamFlow.collectAsStateWithLifecycle(null)
+            val robotMessagesText by viewModel.robotMessagesFlow.collectAsStateWithLifecycle("")
 
             BodyContent(
                 inputStream = inputStreamState,
                 xyWrapper = xyWrapper,
-                messageText = robotMessagesText.orEmpty(),
+                messageText = robotMessagesText,
                 menuClicked = viewModel::startConnection,
                 settingsClicked = { openSettings() },
                 joystickEvent = { viewModel.setCurrentJoystickState(it) },
@@ -192,7 +194,7 @@ fun TopContent(
         ) {
             if (inputStream != null) VideoStreamView(inputStream = inputStream)
 
-            LaunchedEffect(messageText){
+            LaunchedEffect(messageText) {
                 listState.animateScrollBy(100f)
             }
             LazyColumn(state = listState) {
@@ -252,6 +254,7 @@ fun BottomContent(
         }
         MenuSection(
             modifier = Modifier.align(Alignment.Center),
+            menuClicked = menuClicked,
             settingsClicked = settingsClicked,
             simpleButtonClicked = simpleButtonClicked
         )

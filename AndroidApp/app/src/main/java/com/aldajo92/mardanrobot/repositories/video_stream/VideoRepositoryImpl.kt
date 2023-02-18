@@ -12,22 +12,22 @@ class VideoRepositoryImpl @Inject constructor(
 ) : VideoRepository {
     private var disposable : Subscription? = null
 
-    private val streamingImageFlow: MutableStateFlow<MjpegInputStream?> = MutableStateFlow(null)
+    private val _streamingImageFlow: MutableStateFlow<MjpegInputStream?> = MutableStateFlow(null)
 
-    override fun getStreamingImageFlow(): Flow<MjpegInputStream?> = streamingImageFlow
+    override fun getStreamingImageFlow(): Flow<MjpegInputStream?> = _streamingImageFlow
 
     override fun startConnection(urlPath: String) {
         disposable = mjpeg.open(urlPath, 100)
             .subscribe({ inputStream: MjpegInputStream? ->
-                streamingImageFlow.value = inputStream
+                _streamingImageFlow.value = inputStream
             }, {
-                streamingImageFlow.value = null
+                _streamingImageFlow.value = null
             })
     }
 
     override fun closeConnection() {
         disposable?.unsubscribe()
         disposable = null
-        streamingImageFlow.value = null
+        _streamingImageFlow.value = null
     }
 }

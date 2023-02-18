@@ -3,6 +3,7 @@ package com.aldajo92.mardanrobot.presentation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
+import com.aldajo92.mardanrobot.MoveRobotMessage
 import com.aldajo92.mardanrobot.repositories.robot_message.RobotMessageRepository
 import com.aldajo92.mardanrobot.repositories.video_stream.VideoRepository
 import com.aldajo92.mardanrobot.ui.JoystickValues
@@ -29,17 +30,18 @@ class MainViewModel @Inject constructor(
     private var clockJob: Job? = null
 
     //////////////////// Flow Section ////////////////////
-    val inputStreamFlow = videoRepository.getStreamingImageFlow().asLiveData()
+    val inputStreamFlow = videoRepository.getStreamingImageFlow()
 
     //    val robotMessagesFlow = robotMessageRepository.messageFlow().asLiveData()
     private var messageLog = "value\n"
     val robotMessagesFlow = flow {
-        while (true){
-            messageLog += "${random()}\n"
-            emit(messageLog)
-            delay(1_000)
-        }
-    }.asLiveData()
+//        while (true){
+//            messageLog += "${random()}\n"
+//            emit(messageLog)
+//            delay(1_000)
+//        }
+        emit(messageLog)
+    }
 
     //////////////////// Live Data Section ////////////////////
     private var _joystickValuesLiveData = MutableLiveData<Array<JoystickValues>>()
@@ -47,7 +49,7 @@ class MainViewModel @Inject constructor(
 
     fun startConnection() {
         videoRepository.startConnection("http://192.168.4.1:8080/stream?topic=/camera/BGR/raw")
-        robotMessageRepository.startConnection("http://192.168.4.1:8080")
+        robotMessageRepository.startConnection("http://192.168.4.1:5170")
     }
 
     fun setCurrentJoystickState(arrayOfJoystickValues: Array<JoystickValues>) {
@@ -57,13 +59,20 @@ class MainViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun startClock() {
         if (clockJob == null) {
-            clockJob = tickerFlow(0.2.seconds)
+            clockJob = tickerFlow(0.1.seconds)
                 .map { LocalDateTime.now() }
 //            .distinctUntilChanged { old, new ->
 //                old.minute == new.minute
 //            }
                 .onEach {
                     _joystickValuesLiveData.value = joystickValuesArray
+                    val robotMessage = MoveRobotMessage(
+                        steering = joystickValuesArray[0].valueY,
+                        throttle = -joystickValuesArray[0].valueX,
+                        pan = -joystickValuesArray[1].valueY,
+                        tilt = -joystickValuesArray[1].valueX,
+                    )
+                    robotMessageRepository.sendMessage(ROBOT_COMMAND, robotMessage)
                 }
                 .launchIn(viewModelScope)
         } else {
@@ -81,3 +90,5 @@ class MainViewModel @Inject constructor(
     }
 
 }
+
+const val ROBOT_COMMAND = "robot-command"
