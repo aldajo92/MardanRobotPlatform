@@ -49,8 +49,8 @@ class MainViewModel @Inject constructor(
 
     fun startConnection() {
         videoRepository.startConnection("http://192.168.4.1:8080/stream?topic=/camera/BGR/raw")
-//        robotMessageRepository.startConnection("http://192.168.4.1:5170")
-        robotMessageRepository.startConnection("http://192.168.1.32:5170")
+        robotMessageRepository.startConnection("http://192.168.4.1:5170")
+//        robotMessageRepository.startConnection("http://192.168.1.32:5170")
     }
 
     fun setCurrentJoystickState(arrayOfJoystickValues: Array<JoystickValues>) {
